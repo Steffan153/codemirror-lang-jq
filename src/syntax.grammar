@@ -1,26 +1,51 @@
-@top Program { expression* }
+@top Program { expr* }
+@skip { space | Comment }
 
-@skip { space | LineComment }
-
-expression {
-  Identifier |
+expr {
   String |
-  Boolean |
-  Application { "(" expression* ")" }
+  Number |
+  Keyword |
+  Separator |
+  ArithmeticOperator |
+  UpdateOperator |
+  ComparisonOperator |
+  Variable |
+  Deref |
+  identifier |
+  SquareBrackets { "[" expr* "]" } |
+  Parentheses { "(" expr* ")" } |
+  Braces { "{" expr* "}" }
+}
+
+Keyword {
+  Import { kw<"import"> | kw<"include"> | kw<"module"> } |
+  Definition { kw<"def"> } |
+  Statement { kw<"as"> | kw<"break"> | kw<"label"> | kw<"reduce"> | kw<"foreach"> } |
+  Conditional { kw<"if"> | kw<"then"> | kw<"elif"> | kw<"else"> | kw<"end"> } |
+  LogicOperator { kw<"and"> | kw<"or"> | kw<"not"> } |
+  Exception { kw<"try"> | kw<"catch"> } |
+  Boolean { kw<"true"> | kw<"false"> } |
+  Null { kw<"null"> }
 }
 
 @tokens {
-  Identifier { $[a-zA-Z_\-0-9]+ }
-
+  @precedence { Number, ArithmeticOperator }
+  identifier { $[a-zA-Z_] $[a-zA-Z0-9_]* }
+  Separator { $[,;:|] }
   String { '"' (!["\\] | "\\" _)* '"' }
-
-  Boolean { "#t" | "#f" }
-
-  LineComment { ";" ![\n]* }
-
+  Number { "-"? @digit+ ("." @digit+)? ("e" "-"? @digit+)? }
+  ArithmeticOperator { $[-+*/] }
+  UpdateOperator { ArithmeticOperator "=" | "|=" }
+  ComparisonOperator { $[<>] "="? | "==" }
+  Variable { "$" identifier }
+  Deref { "." }
+  Comment { "#" ![\n]* }
   space { $[ \t\n\r]+ }
-
   "(" ")"
+  "[" "]"
+  "{" "}"
 }
+
+kw<word> { @specialize[@name={word}]<identifier, word> }
 
 @detectDelim

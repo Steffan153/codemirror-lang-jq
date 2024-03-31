@@ -1,30 +1,39 @@
-import {parser} from "./syntax.grammar"
-import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
-import {styleTags, tags as t} from "@lezer/highlight"
+import { parser } from "./syntax.grammar";
+import {
+  LRLanguage,
+  LanguageSupport,
+} from "@codemirror/language";
+import { styleTags, tags as t } from "@lezer/highlight";
 
-export const EXAMPLELanguage = LRLanguage.define({
+export const jqLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
-      indentNodeProp.add({
-        Application: delimitedIndent({closing: ")", align: false})
-      }),
-      foldNodeProp.add({
-        Application: foldInside
-      }),
       styleTags({
-        Identifier: t.variableName,
-        Boolean: t.bool,
         String: t.string,
-        LineComment: t.lineComment,
-        "( )": t.paren
-      })
-    ]
+        Number: t.number,
+        "import include module": t.moduleKeyword,
+        "true false": t.bool,
+        def: t.definitionKeyword,
+        "as break label reduce foreach if then elif else end try catch": t.controlKeyword,
+        null: t.null,
+        Separator: t.separator,
+        "( )": t.paren,
+        "[ ]": t.squareBracket,
+        "{ }": t.brace,
+        ArithmeticOperator: t.arithmeticOperator,
+        "and or not": t.logicOperator,
+        ComparisonOperator: t.compareOperator,
+        Identifier: t.name,
+        Comment: t.comment,
+        Deref: t.derefOperator,
+      }),
+    ],
   }),
   languageData: {
-    commentTokens: {line: ";"}
-  }
-})
+    commentTokens: { line: "#" },
+  },
+});
 
-export function EXAMPLE() {
-  return new LanguageSupport(EXAMPLELanguage)
+export function jq() {
+  return new LanguageSupport(jqLanguage);
 }
